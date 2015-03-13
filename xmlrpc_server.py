@@ -60,7 +60,6 @@ class RGB2GrayscaleService:
         Returns pickled numpy.ndarray
         """
         rgb_image_matrix = pickle.loads(rgb_image)
-        print type(rgb_image_matrix)
         grayscale_matrix = cv2.cvtColor(rgb_image_matrix, cv2.COLOR_RGB2GRAY)
         grayscale_matrix = pickle.dumps(grayscale_matrix)
         return grayscale_matrix
