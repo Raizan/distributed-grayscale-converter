@@ -40,7 +40,7 @@ class Main:
             local.close()
             remote.close()
 
-            # node.conn.root.clean(file)
+            node.conn.root.clean(filename)
 
     def run(self):
         if self.path_to_input[-1] != '/':
@@ -124,4 +124,4 @@ if __name__ == "__main__":
     main = Main(address_list, path_to_input, path_to_output, pack_quantity)
     main.run()
 
-    print "Elapsed time"
+    print "Elapsed time " + main.elapsed_time
