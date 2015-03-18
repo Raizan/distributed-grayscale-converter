@@ -27,20 +27,16 @@ class Main:
     def worker(self, node, file_list):
         for filename in file_list:
             print node.host + ": Processing " + filename
-            local = open(self.path_to_input + filename, 'rb')
-            remote = node.conn.root.open(filename, 'wb')
-            copyfileobj(local, remote)
-            local.close()
-            remote.close()
+            file_format = filename[-4:]
+            open_file = open(self.path_to_input + filename, 'rb')
+            read_file = open_file.read()
+            open_file.close()
 
-            node.conn.root.image_converter(filename)
-            local = open(self.path_to_output + filename, 'wb')
-            remote = node.conn.root.open('grayscaled_' + filename, 'rb')
-            copyfileobj(remote, local)
-            local.close()
-            remote.close()
+            converted = node.conn.root.image_converter(read_file, file_format)
 
-            node.conn.root.clean(filename)
+            write_file = open(self.path_to_output + filename, 'wb')
+            write_file.write(converted)
+            write_file.close()
 
     def run(self):
         if self.path_to_input[-1] != '/':
@@ -65,6 +61,9 @@ class Main:
 
             if i == len(self.file_list):
                 break
+
+            if j > len(self.file_list):
+                j = len(self.file_list)
 
             if server_selector == len(self.node_list):
                 server_selector = 0
@@ -124,4 +123,4 @@ if __name__ == "__main__":
     main = Main(address_list, path_to_input, path_to_output, pack_quantity)
     main.run()
 
-    print "Elapsed time " + main.elapsed_time
+    print "Elapsed time " + str(main.elapsed_time)

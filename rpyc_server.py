@@ -1,8 +1,8 @@
 __author__ = 'reisuke'
 
+import numpy as np
 import rpyc
 import cv2
-import os
 from sys import argv, exit
 
 
@@ -13,35 +13,22 @@ class RGB2GrayscaleService(rpyc.Service):
     def on_disconnect(self):
         pass
 
-    def exposed_open(self, filename, mode):
-        """open('path_to_file', 'mode') => file
+    def exposed_image_converter(self, bytes_string, file_format):
+        """image_converter(string, string) => string
 
         Description:
-        Returns file
+        Convert RGB image bytes string to grayscale image bytes string.
+        To use this function, argument must be an image bytes string
+        and file format in string.
+
+        Returns a converted image bytes string.
         """
-        return open(filename, mode)
+        numpy_array = np.fromstring(bytes_string, np.uint8)
+        image_numpy = cv2.imdecode(numpy_array, cv2.CV_LOAD_IMAGE_COLOR)
+        convert = cv2.cvtColor(image_numpy, cv2.COLOR_BGR2GRAY)
 
-    def exposed_image_converter(self, rgb_image):
-        """image_converter(string)
-
-        Description:
-        Convert RGB image file to grayscale image file.
-        To use this function, argument must be an image file.
-
-        Converted image will be saved in server.
-        """
-        image = cv2.imread(rgb_image)
-        convert = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        cv2.imwrite('grayscaled_' + rgb_image, convert)
-
-    def exposed_clean(self, filename):
-        """clean(filename)
-
-        Description:
-        Delete files
-        """
-        os.remove(filename)
-        os.remove('grayscaled_' + filename)
+        result = cv2.imencode(file_format, convert)[1].tostring()
+        return result
 
 if __name__ == "__main__":
     from rpyc.utils.server import ThreadedServer
